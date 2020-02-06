@@ -150,8 +150,7 @@ public class VentanaJuego extends javax.swing.JFrame {
                 break;
                 
             case KeyEvent.VK_SPACE: 
-                miDisparo.posX = miNave.posX;
-                miDisparo.posY = miNave.posY;
+                miDisparo.posicionDisparo(miNave);
                 break;
 
         }
