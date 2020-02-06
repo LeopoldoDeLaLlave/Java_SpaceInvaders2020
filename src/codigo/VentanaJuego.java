@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import javax.swing.Timer;
 
@@ -23,6 +24,7 @@ public class VentanaJuego extends javax.swing.JFrame {
 
     int filasMarcianos = 5;
     int columnasMarcianos = 10;
+    int contador = 0;
 
     BufferedImage buffer = null;
 
@@ -39,6 +41,8 @@ public class VentanaJuego extends javax.swing.JFrame {
     
     
     Marciano miMarciano = new Marciano(ANCHOPANTALLA);
+    Nave miNave = new Nave();
+    Disparo miDisparo = new Disparo();
     
 
     /**
@@ -52,6 +56,8 @@ public class VentanaJuego extends javax.swing.JFrame {
         
         //Arranco el temporizador para que empiece el juego
         temporizador.start();
+        miNave.posX = ANCHOPANTALLA/2 - miNave.imagen.getWidth(this)/2;
+        miNave.posY = ALTOPANTALLA - 100;
     }
 
     private void bucleDelJuego() {
@@ -63,8 +69,21 @@ public class VentanaJuego extends javax.swing.JFrame {
         g2.setColor(Color.BLACK);
         g2.fillRect(0, 0, ANCHOPANTALLA, ALTOPANTALLA);
         
+        contador++;
         /////////////////////////////////
-        g2.drawImage(miMarciano.imagen1, 10, 10, null);
+        if(contador<50){
+            g2.drawImage(miMarciano.imagen1, 10, 10, null);
+        }else if(contador<100){
+            g2.drawImage(miMarciano.imagen2, 10, 10, null);
+        }else{
+            contador=0;
+        }
+        
+        //Dibujo la nave
+        g2.drawImage(miNave.imagen, miNave.posX, miNave.posY, null);
+        g2.drawImage(miDisparo.imagen, miDisparo.posX, miDisparo.posY, null);
+        miNave.mueve();
+        miDisparo.mueve();
         /////////////////////////////////
         
         //dibujo de golpe todo el buffer sobre el jPanel1
@@ -85,6 +104,14 @@ public class VentanaJuego extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                formKeyPressed(evt);
+            }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                formKeyReleased(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -110,6 +137,38 @@ public class VentanaJuego extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void formKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyPressed
+        switch(evt.getKeyCode()){
+            case KeyEvent.VK_RIGHT:
+                miNave.setPulsadoDerecha(true);
+                break;
+                
+                               
+            case KeyEvent.VK_LEFT:
+                miNave.setPulsadoIzquierda(true);
+                break;
+                
+            case KeyEvent.VK_SPACE: 
+                miDisparo.posX = miNave.posX;
+                miDisparo.posY = miNave.posY;
+                break;
+
+        }
+    }//GEN-LAST:event_formKeyPressed
+
+    private void formKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyReleased
+        switch(evt.getKeyCode()){
+            case KeyEvent.VK_RIGHT:
+                miNave.setPulsadoDerecha(false);
+                break;
+                
+                               
+            case KeyEvent.VK_LEFT:
+                miNave.setPulsadoIzquierda(false);
+                break;
+        }
+    }//GEN-LAST:event_formKeyReleased
 
     /**
      * @param args the command line arguments
