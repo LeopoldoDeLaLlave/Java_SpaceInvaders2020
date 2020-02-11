@@ -5,13 +5,19 @@
  */
 package codigo;
 
+import static com.sun.javafx.scene.control.skin.Utils.getResource;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.Timer;
 
 /**
@@ -29,6 +35,9 @@ public class VentanaJuego extends javax.swing.JFrame {
     
     int posYMar = 0;
     BufferedImage buffer = null;
+    //Buffer para guardar las imágenes de todos los marcianos
+    BufferedImage plantilla = null;
+    Image[] imagenes = new Image[30];
 
     //Bucle de animación del juego
     //en este caso, es un hilo de ejecución nuevo
@@ -59,9 +68,33 @@ public class VentanaJuego extends javax.swing.JFrame {
      */
     public VentanaJuego() {
         initComponents();
+        
+        
+        try {
+            plantilla = ImageIO.read(getClass().getResource("/imagenes/invaders2.png"));
+        } catch (IOException ex) {
+            Logger.getLogger(VentanaJuego.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        //Cargo las 30 imágenes del spritesheet en el array de bufferedimages
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 4; j++) {
+                imagenes[i*4+j]=plantilla.getSubimage(j*64, i*64, 64, 64).getScaledInstance(32, 32, Image.SCALE_SMOOTH);
+
+            }
+        }
+        
+        imagenes[20]=plantilla.getSubimage(0, 320, 66, 32);//Sprite de la nave
+        imagenes[21]=plantilla.getSubimage(66, 320, 64, 32);
+        
         setSize(ANCHOPANTALLA, ALTOPANTALLA);
         buffer = (BufferedImage) jPanel1.createImage(ANCHOPANTALLA, ALTOPANTALLA);
         buffer.createGraphics();
+        
+        //Arranco el temporizador para que empiece el juego
+        temporizador.start();
+        
+        miNave.imagen = imagenes[21];
         
         
         miNave.posX = ANCHOPANTALLA/2 - miNave.imagen.getWidth(this)/2;
@@ -72,14 +105,15 @@ public class VentanaJuego extends javax.swing.JFrame {
         for (int i = 0; i < filasMarcianos; i++) {
             for (int j = 0; j < columnasMarcianos; j++) {
                 arrayMarcianos[i][j]=new Marciano(ANCHOPANTALLA);
+                arrayMarcianos[i][j].imagen1 = imagenes[2*i];
+                arrayMarcianos[i][j].imagen2 = imagenes[2*i+1];
                 arrayMarcianos[i][j].posX= j*(15+arrayMarcianos[i][j].imagen1.getWidth(null));
                 arrayMarcianos[i][j].posY= i*(10+arrayMarcianos[i][j].imagen1.getHeight(null));
             }
         }
         miDisparo.posY = -2000;
         
-        //Arranco el temporizador para que empiece el juego
-        temporizador.start();
+        
     }
     
     private void pintaMarcianos(Graphics2D _g2){
