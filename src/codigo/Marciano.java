@@ -21,6 +21,7 @@ public class Marciano {
     public int posX=0;
     public int posY=0;
     
+    
     private int anchoPantalla;
     
     public int vida = 50;
@@ -31,6 +32,7 @@ public class Marciano {
         }else{
             posX++;
         }
+
     }
     
     public Marciano(int _anchoPantalla){
