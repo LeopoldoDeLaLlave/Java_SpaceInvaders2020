@@ -21,6 +21,8 @@ public class Marciano {
     public int posX=0;
     public int posY=0;
     
+    public int velocidad = 1;
+    
     
     private int anchoPantalla;
     
@@ -28,9 +30,9 @@ public class Marciano {
     
     public void mueve(boolean direccion){
         if(direccion){
-            posX--;
+            posX-=velocidad;
         }else{
-            posX++;
+            posX+=velocidad;
         }
 
     }

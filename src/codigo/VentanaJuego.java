@@ -50,7 +50,11 @@ public class VentanaJuego extends javax.swing.JFrame {
     /*Marciano miMarciano = new Marciano(ANCHOPANTALLA);
     Marciano[][] arrayMarcianos = new Marciano[filasMarcianos][columnasMarcianos];*/
     ArrayList<Marciano> listaMarcianos = new ArrayList();
-    int contadorMarcianos = 0;//Lo utilizamos como inice de la lista de marcianos
+    //int contadorMarcianos = 0;//Lo utilizamos como inice de la lista de marcianos
+
+    int totalMarcianos = filasMarcianos * columnasMarcianos; //Indica cuantos marcianos hay en un inicio
+    
+    int velocidadMarcianos=1; //Velocidad a la que se desplazan los marcianos
 
     boolean direccionMarciano = false; //Si es false ira a la derecha
 
@@ -103,7 +107,7 @@ public class VentanaJuego extends javax.swing.JFrame {
                 Marciano m = new Marciano(ANCHOPANTALLA);
                 m.imagen1 = imagenes[2 * i];
                 m.imagen2 = imagenes[2 * i + 1];
-                m.posX = j * (15 + m.imagen1.getWidth(null));
+                m.posX = j * (10 + m.imagen1.getWidth(null));
                 m.posY = i * (10 + m.imagen1.getHeight(null));
                 listaMarcianos.add(m);
             }
@@ -116,38 +120,48 @@ public class VentanaJuego extends javax.swing.JFrame {
 
     private void pintaMarcianos(Graphics2D _g2) {
 
-        while (contadorMarcianos < listaMarcianos.size()) {
-
-            listaMarcianos.get(contadorMarcianos).mueve(direccionMarciano);
-            if (listaMarcianos.get(contadorMarcianos).posX >= ANCHOPANTALLA - listaMarcianos.get(contadorMarcianos).imagen1.getWidth(null) + 5
-                    || listaMarcianos.get(contadorMarcianos).posX <= 0) {//Si un marciano llega al final de la pantalla
-                cambiarDir=true; 
-
+        //VAríamos la velocidad de los marcianos en función de los que quedan
+        if(listaMarcianos.size()==1){//Si queda un marciano
+                velocidadMarcianos =1;
+            }else if(listaMarcianos.size()<= totalMarcianos/3){//Si quedan menos de un tercio de marcianos
+                velocidadMarcianos =3;
+            }else if(listaMarcianos.size()<= totalMarcianos*(2/3)){//Si quedan menos de dos tercios de marcianos
+                velocidadMarcianos =10;
+            }else{//Si quedan más de dos tercios de marcianos
+                velocidadMarcianos =3 ;
             }
-            contadorMarcianos++;
+        
+        System.out.println(totalMarcianos/3);
+        
+        //Establecemos las posiciones de los marcianos
+        for (int i = 0; i < listaMarcianos.size(); i++) {
+            
+            listaMarcianos.get(i).velocidad= velocidadMarcianos;
+            listaMarcianos.get(i).mueve(direccionMarciano);
+            if (listaMarcianos.get(i).posX >= ANCHOPANTALLA - listaMarcianos.get(i).imagen1.getWidth(null) + 5
+                    || listaMarcianos.get(i).posX <= 0) {//Si un marciano llega al final de la pantalla
+                cambiarDir = true;
+            }
         }
 
         if (cambiarDir) {
             direccionMarciano = !direccionMarciano;
             posYMar += 10;//Hago que los marcianos salten
         }
-        
+
         cambiarDir = false;
 
-        contadorMarcianos = 0;//Volvemos a poner a 0 el contador de los marcianos
-
-        while (contadorMarcianos < listaMarcianos.size()) {
+        //Cambiamos los marcianos
+        for (int i = 0; i < listaMarcianos.size(); i++) {
             if (contador < 50) {
-                _g2.drawImage(listaMarcianos.get(contadorMarcianos).imagen1, listaMarcianos.get(contadorMarcianos).posX, listaMarcianos.get(contadorMarcianos).posY + posYMar, null);
+                _g2.drawImage(listaMarcianos.get(i).imagen1, listaMarcianos.get(i).posX, listaMarcianos.get(i).posY + posYMar, null);
             } else if (contador < 100) {
-                _g2.drawImage(listaMarcianos.get(contadorMarcianos).imagen2, listaMarcianos.get(contadorMarcianos).posX, listaMarcianos.get(contadorMarcianos).posY + posYMar, null);
+                _g2.drawImage(listaMarcianos.get(i).imagen2, listaMarcianos.get(i).posX, listaMarcianos.get(i).posY + posYMar, null);
             } else {
                 contador = 0;
             }
-            contadorMarcianos++;
         }
 
-        contadorMarcianos = 0;//Volvemos a poner a 0 el contador de los marcianos
     }
 
     //Pinta todos los disparos
@@ -164,6 +178,7 @@ public class VentanaJuego extends javax.swing.JFrame {
                 g2.drawImage(disparoAux.imagen, disparoAux.posX, disparoAux.posY, null);
             }
         }
+
     }
 
     //Pinta la explosiones
@@ -175,12 +190,8 @@ public class VentanaJuego extends javax.swing.JFrame {
             explosionAux = listaExplosiones.get(i);
 
             explosionAux.tiempoDeVida--;
-            if (explosionAux.tiempoDeVida > 33) {
+            if (explosionAux.tiempoDeVida < 50) {
                 g2.drawImage(explosionAux.imagen1, explosionAux.posX, explosionAux.posY, null);
-            } else if (explosionAux.tiempoDeVida > 17) {
-                g2.drawImage(explosionAux.imagen2, explosionAux.posX, explosionAux.posY, null);
-            } else {
-                g2.drawImage(explosionAux.imagen3, explosionAux.posX, explosionAux.posY, null);
             }
             if (explosionAux.tiempoDeVida <= 0) {
                 listaExplosiones.remove(i);
@@ -197,28 +208,27 @@ public class VentanaJuego extends javax.swing.JFrame {
 
             //Calculo el rectangulo del disparo
             rectanguloDisparo.setFrame(listaDisparos.get(k).posX, listaDisparos.get(k).posY, listaDisparos.get(k).imagen.getWidth(null), listaDisparos.get(k).imagen.getHeight(null));
-            while (contadorMarcianos < listaMarcianos.size()) {
+            for (int i = 0; i < listaMarcianos.size(); i++) {
 
                 //Calculo el rectángulo correspondiente al marciano que estoy comprobando
-                rectanguloMarciano.setFrame(listaMarcianos.get(contadorMarcianos).posX, listaMarcianos.get(contadorMarcianos).posY + posYMar, listaMarcianos.get(contadorMarcianos).imagen1.getWidth(null), listaMarcianos.get(contadorMarcianos).imagen1.getHeight(null));
+                rectanguloMarciano.setFrame(listaMarcianos.get(i).posX, listaMarcianos.get(i).posY + posYMar, listaMarcianos.get(i).imagen1.getWidth(null), listaMarcianos.get(i).imagen1.getHeight(null));
 
                 if (rectanguloDisparo.intersects(rectanguloMarciano)) {//Si entra aquí es porque han chocado
                     Explosion e = new Explosion();
-                    e.posX = listaMarcianos.get(contadorMarcianos).posX;
-                    e.posY = listaMarcianos.get(contadorMarcianos).posY + posYMar;
+                    e.posX = listaMarcianos.get(i).posX;
+                    e.posY = listaMarcianos.get(i).posY + posYMar;
                     e.imagen1 = imagenes[23];
                     e.imagen2 = imagenes[22];
                     e.imagen3 = imagenes[24];
                     listaExplosiones.add(e);
                     e.sonidoExplosion.start();//Suena el sonido
-                    listaMarcianos.remove(contadorMarcianos);
+                    listaMarcianos.remove(i);
                     listaDisparos.remove(k);
                 }
-                contadorMarcianos++;
             }
 
         }
-        contadorMarcianos = 0;//Volvemos a poner el contador a 0
+
     }
 
     private void bucleDelJuego() {
@@ -300,18 +310,21 @@ public class VentanaJuego extends javax.swing.JFrame {
                 break;
 
             case KeyEvent.VK_LEFT:
+
                 miNave.setPulsadoIzquierda(true);
                 break;
 
             case KeyEvent.VK_SPACE:
-                Disparo d = new Disparo();
+                if (listaDisparos.size() < 2) {//Para que no se pueda disparar a lo loco
+                    Disparo d = new Disparo();
 
-                d.posicionDisparo(miNave);
+                    d.posicionDisparo(miNave);
 
-                d.sonidoDisparo.start();//Suena el sonido
+                    d.sonidoDisparo.start();//Suena el sonido
 
-                //agregamos el disparo a la lista de disparos
-                listaDisparos.add(d);
+                    //agregamos el disparo a la lista de disparos
+                    listaDisparos.add(d);
+                }
 
                 break;
 
@@ -321,11 +334,11 @@ public class VentanaJuego extends javax.swing.JFrame {
     private void formKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyReleased
         switch (evt.getKeyCode()) {
             case KeyEvent.VK_RIGHT:
-                miNave.setPulsadoDerecha(false);
+                miNave.setPulsadoIzquierda(false);
                 break;
 
             case KeyEvent.VK_LEFT:
-                miNave.setPulsadoIzquierda(false);
+                miNave.setPulsadoDerecha(false);
                 break;
         }
     }//GEN-LAST:event_formKeyReleased

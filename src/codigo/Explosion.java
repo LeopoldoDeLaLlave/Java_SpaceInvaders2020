@@ -24,7 +24,7 @@ public class Explosion {
     public int posX = 0;
     public int posY = 0;
     
-    public int tiempoDeVida = 50;
+    public int tiempoDeVida = 15;
     
     Clip sonidoExplosion = null;
     
