@@ -26,7 +26,7 @@ import javax.swing.Timer;
 public class VentanaJuego extends javax.swing.JFrame {
 
     static int ANCHOPANTALLA = 800;
-    static int ALTOPANTALLA = 600;
+    static int ALTOPANTALLA = 720;
     int filasMarcianos = 5;
     int columnasMarcianos = 14;
     int contador = 0;
@@ -34,11 +34,15 @@ public class VentanaJuego extends javax.swing.JFrame {
     Random r = new Random();
     int num_random = 0;//Para sortear los disparos
 
+    Impacto1 imp = new Impacto1();//Para el sonido de la colisiones
+
     int posYMar = 0;//Guardamos la distancia que hay que sumarle a la posY de los marcianos
     BufferedImage buffer = null;
     //Buffer para guardar las imágenes de todos los marcianos
     BufferedImage plantilla = null;
     Image[] imagenes = new Image[30];
+    
+    int puntuacion = 0; //Guarda los puntos que lleva un jugador
 
     //Bucle de animación del juego
     //en este caso, es un hilo de ejecución nuevo
@@ -114,7 +118,7 @@ public class VentanaJuego extends javax.swing.JFrame {
                 m.imagen1 = imagenes[2 * i];
                 m.imagen2 = imagenes[2 * i + 1];
                 m.posX = j * (10 + m.imagen1.getWidth(null));
-                m.posY = i * (10 + m.imagen1.getHeight(null));
+                m.posY = i * (10 + m.imagen1.getHeight(null))+120;
                 listaMarcianos.add(m);
             }
         }
@@ -123,6 +127,8 @@ public class VentanaJuego extends javax.swing.JFrame {
         temporizador.start();
 
     }
+    
+
 
     private void pintaMarcianos(Graphics2D _g2) {
 
@@ -262,6 +268,7 @@ public class VentanaJuego extends javax.swing.JFrame {
                         e.sonidoExplosion.start();//Suena el sonido
                         listaMarcianos.remove(i);
                         listaDisparos.remove(k);
+                        puntuacion+=50;//El jugador gana 5 puntos
                     } catch (Exception e) {
                         System.out.println("fallo");
                     }
@@ -272,8 +279,8 @@ public class VentanaJuego extends javax.swing.JFrame {
         }
 
     }
-    
-        //Chequea si un disparo y un rayo colisionan
+
+    //Chequea si un disparo y un rayo colisionan
     private void chequeaColisionRayoDis() {
         Rectangle2D.Double rectanguloRayo = new Rectangle2D.Double();
         Rectangle2D.Double rectanguloDisparo = new Rectangle2D.Double();
@@ -289,9 +296,11 @@ public class VentanaJuego extends javax.swing.JFrame {
 
                 if (rectanguloDisparo.intersects(rectanguloRayo)) {//Si entra aquí es porque han chocado
                     try {
-
+                        imp.ruido();
+                        imp.sonidoExplosion.start();
                         listaRayos.remove(i);
                         listaDisparos.remove(k);
+                        puntuacion+=10; //El jugador recibe un punto
                     } catch (Exception e) {
                         System.out.println("fallo");
                     }
@@ -308,14 +317,15 @@ public class VentanaJuego extends javax.swing.JFrame {
         Rectangle2D.Double rectanguloNave = new Rectangle2D.Double();
         Rectangle2D.Double rectanguloRayo = new Rectangle2D.Double();
 
-        for (int k = 0; k < listaRayos.size(); k++) { 
-            System.out.println(listaRayos.size()+" "+k);
+        for (int k = 0; k < listaRayos.size(); k++) {
             //Calculo el rectangulo del rayo
             rectanguloRayo.setFrame(listaRayos.get(k).posX, listaRayos.get(k).posY, listaRayos.get(k).imagen.getWidth(null), listaRayos.get(k).imagen.getHeight(null));
             //Calculo el rectángulo de la nave
             rectanguloNave.setFrame(miNave.posX, miNave.posY, miNave.imagen.getWidth(null), miNave.imagen.getHeight(null));
 
             if (rectanguloNave.intersects(rectanguloRayo)) {//Si entra aquí es porque han chocado
+                imp.ruido();
+                imp.sonidoExplosion.start();
                 listaRayos.remove(k);
 
             }
@@ -332,6 +342,12 @@ public class VentanaJuego extends javax.swing.JFrame {
 
         g2.setColor(Color.BLACK);
         g2.fillRect(0, 0, ANCHOPANTALLA, ALTOPANTALLA);
+        g2.setColor(Color.white);
+        g2.drawString("SCORE:", 2, 30);
+        g2.drawString("LIVES:", 600, 30);
+        g2.setColor(Color.GREEN);
+        g2.drawString(String.valueOf(puntuacion), 52, 30);
+        //g2.drawString("LIVES", 600, 30);
 
         contador++;
         /////////////////////////////////
@@ -350,6 +366,7 @@ public class VentanaJuego extends javax.swing.JFrame {
         //dibujo de golpe todo el buffer sobre el jPanel1
         g2 = (Graphics2D) jPanel1.getGraphics();
         g2.drawImage(buffer, 0, 0, this);
+        
 
     }
 
