@@ -33,7 +33,7 @@ public class Rayo {
     }
 
     public void mueve() {
-        posY += 1;
+        posY += 3;
 
     }
 

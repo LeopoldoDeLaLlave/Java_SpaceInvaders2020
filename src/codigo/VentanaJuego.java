@@ -6,6 +6,7 @@
 package codigo;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -40,9 +41,10 @@ public class VentanaJuego extends javax.swing.JFrame {
     BufferedImage buffer = null;
     //Buffer para guardar las imágenes de todos los marcianos
     BufferedImage plantilla = null;
-    Image naveVida=null;//Representan las vidas
+    Image naveVida = null;//Representan las vidas
+    Image go = null;//Imagen gameOver
     Image[] imagenes = new Image[30];
-    
+
     int puntuacion = 0; //Guarda los puntos que lleva un jugador
 
     //Bucle de animación del juego
@@ -119,7 +121,7 @@ public class VentanaJuego extends javax.swing.JFrame {
                 m.imagen1 = imagenes[2 * i];
                 m.imagen2 = imagenes[2 * i + 1];
                 m.posX = j * (10 + m.imagen1.getWidth(null));
-                m.posY = i * (10 + m.imagen1.getHeight(null))+120;
+                m.posY = i * (10 + m.imagen1.getHeight(null)) + 120;
                 listaMarcianos.add(m);
             }
         }
@@ -128,8 +130,6 @@ public class VentanaJuego extends javax.swing.JFrame {
         temporizador.start();
 
     }
-    
-
 
     private void pintaMarcianos(Graphics2D _g2) {
 
@@ -149,13 +149,22 @@ public class VentanaJuego extends javax.swing.JFrame {
 
             listaMarcianos.get(i).velocidad = velocidadMarcianos;
             listaMarcianos.get(i).mueve(direccionMarciano);
-            if (listaMarcianos.get(i).posX >= ANCHOPANTALLA - listaMarcianos.get(i).imagen1.getWidth(null) + 5
+            if (listaMarcianos.get(i).posX >= ANCHOPANTALLA - (listaMarcianos.get(i).imagen1.getWidth(null) + 14)
                     || listaMarcianos.get(i).posX <= 0) {//Si un marciano llega al final de la pantalla
                 cambiarDir = true;
             }
 
-            //Sorteo si el mariano dispara o no
-            num_random = r.nextInt(23000);
+            //Cuantos menos marcianos haya más dispararán, a no ser que solo quede uno
+            if (listaMarcianos.size() == 1) {//Si queda un marciano
+                velocidadMarcianos = 0;
+            } else if (listaMarcianos.size() >= 40) {//Si quedan menos de 40 marcianos
+                num_random = r.nextInt(7000);
+            } else if (listaMarcianos.size() >= 13) {//Si quedan menos de 13 marcianos
+                num_random = r.nextInt(3000);
+            } else {//Si quedan más de dos tercios de marcianos
+                num_random = r.nextInt(500);
+            }
+
             if (num_random == 12) {
                 Rayo rayo1 = new Rayo();
                 rayo1.posX = listaMarcianos.get(i).posX + 32;
@@ -269,7 +278,7 @@ public class VentanaJuego extends javax.swing.JFrame {
                         e.sonidoExplosion.start();//Suena el sonido
                         listaMarcianos.remove(i);
                         listaDisparos.remove(k);
-                        puntuacion+=50;//El jugador gana 5 puntos
+                        puntuacion += 50;//El jugador gana 5 puntos
                     } catch (Exception e) {
                         System.out.println("fallo");
                     }
@@ -301,7 +310,7 @@ public class VentanaJuego extends javax.swing.JFrame {
                         imp.sonidoExplosion.start();
                         listaRayos.remove(i);
                         listaDisparos.remove(k);
-                        puntuacion+=10; //El jugador recibe un punto
+                        puntuacion += 10; //El jugador recibe un punto
                     } catch (Exception e) {
                         System.out.println("fallo");
                     }
@@ -328,7 +337,7 @@ public class VentanaJuego extends javax.swing.JFrame {
                 imp.ruido();
                 imp.sonidoExplosion.start();
                 listaRayos.remove(k);
-                miNave.vidas-=1;
+                miNave.vidas -= 1;
 
             }
 
@@ -353,15 +362,15 @@ public class VentanaJuego extends javax.swing.JFrame {
         } catch (IOException ex) {
             System.out.println("errorrrr");
         }
-        if(miNave.vidas == 3){
-        g2.drawImage(naveVida, 610, 0, null);
-        g2.drawImage(naveVida, 660, 0, null);
-        g2.drawImage(naveVida, 710, 0, null);
-        }else if(miNave.vidas == 2){
-        g2.drawImage(naveVida, 610, 0, null);
-        g2.drawImage(naveVida, 660, 0, null);
-        }else if(miNave.vidas == 1){
-        g2.drawImage(naveVida, 610, 0, null);
+        if (miNave.vidas == 3) {
+            g2.drawImage(naveVida, 610, 0, null);
+            g2.drawImage(naveVida, 660, 0, null);
+            g2.drawImage(naveVida, 710, 0, null);
+        } else if (miNave.vidas == 2) {
+            g2.drawImage(naveVida, 610, 0, null);
+            g2.drawImage(naveVida, 660, 0, null);
+        } else if (miNave.vidas == 1) {
+            g2.drawImage(naveVida, 610, 0, null);
         }
         g2.setColor(Color.GREEN);
         g2.drawString(String.valueOf(puntuacion), 52, 30);
@@ -380,11 +389,28 @@ public class VentanaJuego extends javax.swing.JFrame {
         chequeaColisionNaveRayo();
         chequeaColisionRayoDis();
 
+        if (miNave.vidas <= 0) {//Si no quedan vidas aparece pantalla game over
+            temporizador.stop();
+            try {
+                go = ImageIO.read(getClass().getResource("/imagenes/go.jpg"));
+            } catch (IOException ex) {
+                System.out.println("errorr");
+            }
+
+            g2.setColor(Color.BLACK);
+            g2.fillRect(0, 0, ANCHOPANTALLA, ALTOPANTALLA);
+            g2.drawImage(go, 20, 0, null);
+            g2.setColor(Color.GREEN);
+            Font myFont = new Font("Agency FB", Font.BOLD, 70);
+            g2.setFont(myFont);
+            g2.drawString("SCORE:", 240, 450);
+            g2.drawString(String.valueOf(puntuacion), 420, 450);
+        }
+
         /////////////////////////////////
         //dibujo de golpe todo el buffer sobre el jPanel1
         g2 = (Graphics2D) jPanel1.getGraphics();
         g2.drawImage(buffer, 0, 0, this);
-        
 
     }
 
