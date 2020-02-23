@@ -40,6 +40,7 @@ public class VentanaJuego extends javax.swing.JFrame {
     BufferedImage buffer = null;
     //Buffer para guardar las imágenes de todos los marcianos
     BufferedImage plantilla = null;
+    Image naveVida=null;//Representan las vidas
     Image[] imagenes = new Image[30];
     
     int puntuacion = 0; //Guarda los puntos que lleva un jugador
@@ -327,6 +328,7 @@ public class VentanaJuego extends javax.swing.JFrame {
                 imp.ruido();
                 imp.sonidoExplosion.start();
                 listaRayos.remove(k);
+                miNave.vidas-=1;
 
             }
 
@@ -344,7 +346,23 @@ public class VentanaJuego extends javax.swing.JFrame {
         g2.fillRect(0, 0, ANCHOPANTALLA, ALTOPANTALLA);
         g2.setColor(Color.white);
         g2.drawString("SCORE:", 2, 30);
-        g2.drawString("LIVES:", 600, 30);
+        g2.drawString("LIVES:", 570, 30);
+        //Pintamos las vidas representadas con naves, una nave por vida
+        try {
+            naveVida = ImageIO.read(getClass().getResource("/imagenes/nave.png"));
+        } catch (IOException ex) {
+            System.out.println("errorrrr");
+        }
+        if(miNave.vidas == 3){
+        g2.drawImage(naveVida, 610, 0, null);
+        g2.drawImage(naveVida, 660, 0, null);
+        g2.drawImage(naveVida, 710, 0, null);
+        }else if(miNave.vidas == 2){
+        g2.drawImage(naveVida, 610, 0, null);
+        g2.drawImage(naveVida, 660, 0, null);
+        }else if(miNave.vidas == 1){
+        g2.drawImage(naveVida, 610, 0, null);
+        }
         g2.setColor(Color.GREEN);
         g2.drawString(String.valueOf(puntuacion), 52, 30);
         //g2.drawString("LIVES", 600, 30);

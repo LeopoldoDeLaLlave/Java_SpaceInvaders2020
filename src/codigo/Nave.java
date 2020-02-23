@@ -16,6 +16,7 @@ public class Nave {
     Image imagen = null;
     public int posX = 0;
     public int posY = 0;
+    int vidas = 3;
     
     private boolean pulsadoIzquierda = false;
     private boolean pulsadoDerecha = false;
