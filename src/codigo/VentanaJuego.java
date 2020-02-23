@@ -406,6 +406,20 @@ public class VentanaJuego extends javax.swing.JFrame {
             g2.drawString("SCORE:", 240, 450);
             g2.drawString(String.valueOf(puntuacion), 420, 450);
         }
+        
+        if (listaMarcianos.size() <= 0) {//Si no quedan vidas aparece pantalla game over
+            temporizador.stop();
+
+            g2.setColor(Color.BLACK);
+            g2.fillRect(0, 0, ANCHOPANTALLA, ALTOPANTALLA);
+            g2.setColor(Color.GREEN);
+            Font myFont = new Font("Agency FB", Font.BOLD, 150);
+            g2.setFont(myFont);
+            g2.drawString("YOU WIN!", 170, 320);
+            myFont = new Font("Agency FB", Font.BOLD, 70);
+            g2.drawString("SCORE:", 100, 500);
+            g2.drawString(String.valueOf(puntuacion), 480, 500);
+        }
 
         /////////////////////////////////
         //dibujo de golpe todo el buffer sobre el jPanel1
