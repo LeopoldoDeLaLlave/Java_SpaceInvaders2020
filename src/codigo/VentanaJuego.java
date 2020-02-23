@@ -272,18 +272,48 @@ public class VentanaJuego extends javax.swing.JFrame {
         }
 
     }
+    
+        //Chequea si un disparo y un rayo colisionan
+    private void chequeaColisionRayoDis() {
+        Rectangle2D.Double rectanguloRayo = new Rectangle2D.Double();
+        Rectangle2D.Double rectanguloDisparo = new Rectangle2D.Double();
+
+        for (int k = 0; k < listaDisparos.size(); k++) {
+
+            //Calculo el rectangulo del disparo
+            rectanguloDisparo.setFrame(listaDisparos.get(k).posX, listaDisparos.get(k).posY, listaDisparos.get(k).imagen.getWidth(null), listaDisparos.get(k).imagen.getHeight(null));
+            for (int i = 0; i < listaRayos.size(); i++) {
+
+                //Calculo el rectángulo correspondiente al marciano que estoy comprobando
+                rectanguloRayo.setFrame(listaRayos.get(i).posX, listaRayos.get(i).posY, listaRayos.get(i).imagen.getWidth(null), listaRayos.get(i).imagen.getHeight(null));
+
+                if (rectanguloDisparo.intersects(rectanguloRayo)) {//Si entra aquí es porque han chocado
+                    try {
+
+                        listaRayos.remove(i);
+                        listaDisparos.remove(k);
+                    } catch (Exception e) {
+                        System.out.println("fallo");
+                    }
+
+                }
+            }
+
+        }
+
+    }
 
     //Chequea si la nave y el rayo colisionan
     private void chequeaColisionNaveRayo() {
         Rectangle2D.Double rectanguloNave = new Rectangle2D.Double();
         Rectangle2D.Double rectanguloRayo = new Rectangle2D.Double();
 
-        for (int k = 0; k < listaRayos.size(); k++) {
+        for (int k = 0; k < listaRayos.size(); k++) { 
             System.out.println(listaRayos.size()+" "+k);
             //Calculo el rectangulo del rayo
             rectanguloRayo.setFrame(listaRayos.get(k).posX, listaRayos.get(k).posY, listaRayos.get(k).imagen.getWidth(null), listaRayos.get(k).imagen.getHeight(null));
-            //Calculo el rectángulo de la nava
-            rectanguloNave.setFrame(miNave.posX, miNave.posY + posYMar, miNave.imagen.getWidth(null), miNave.imagen.getHeight(null));
+            //Calculo el rectángulo de la nave
+            rectanguloNave.setFrame(miNave.posX, miNave.posY, miNave.imagen.getWidth(null), miNave.imagen.getHeight(null));
 
             if (rectanguloNave.intersects(rectanguloRayo)) {//Si entra aquí es porque han chocado
                 listaRayos.remove(k);
@@ -314,6 +344,7 @@ public class VentanaJuego extends javax.swing.JFrame {
         miNave.mueve();
         chequeaColisionMarDis();
         chequeaColisionNaveRayo();
+        chequeaColisionRayoDis();
 
         /////////////////////////////////
         //dibujo de golpe todo el buffer sobre el jPanel1
