@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.Timer;
 
 /**
@@ -32,6 +34,9 @@ public class VentanaJuego extends javax.swing.JFrame {
     int columnasMarcianos = 14;
     int contador = 0;
 
+    boolean empezar = false; //Nos indica si el juego ha empezado
+    boolean perdido = false; //Nos indica si los marcianos han llegado a la nave
+
     Random r = new Random();
     int num_random = 0;//Para sortear los disparos
 
@@ -43,6 +48,7 @@ public class VentanaJuego extends javax.swing.JFrame {
     BufferedImage plantilla = null;
     Image naveVida = null;//Representan las vidas
     Image go = null;//Imagen gameOver
+    Image start = null;
     Image[] imagenes = new Image[30];
 
     int puntuacion = 0; //Guarda los puntos que lleva un jugador
@@ -84,7 +90,11 @@ public class VentanaJuego extends javax.swing.JFrame {
      */
     public VentanaJuego() {
         initComponents();
+        empezarPartida();
+    }
 
+    //Prepara todos los elementos para empezar la partida
+    public void empezarPartida() {
         try {
             plantilla = ImageIO.read(getClass().getResource("/imagenes/invaders2.png"));
         } catch (IOException ex) {
@@ -120,15 +130,11 @@ public class VentanaJuego extends javax.swing.JFrame {
                 Marciano m = new Marciano(ANCHOPANTALLA);
                 m.imagen1 = imagenes[2 * i];
                 m.imagen2 = imagenes[2 * i + 1];
-                m.posX = j * (10 + m.imagen1.getWidth(null));
+                m.posX = j * (10 + m.imagen1.getWidth(null))+5;
                 m.posY = i * (10 + m.imagen1.getHeight(null)) + 120;
                 listaMarcianos.add(m);
             }
         }
-
-        //Arranco el temporizador para que empiece el juego
-        temporizador.start();
-
     }
 
     private void pintaMarcianos(Graphics2D _g2) {
@@ -147,11 +153,17 @@ public class VentanaJuego extends javax.swing.JFrame {
         //Establecemos las posiciones de los marcianos
         for (int i = 0; i < listaMarcianos.size(); i++) {
 
+
             listaMarcianos.get(i).velocidad = velocidadMarcianos;
             listaMarcianos.get(i).mueve(direccionMarciano);
-            if (listaMarcianos.get(i).posX >= ANCHOPANTALLA - (listaMarcianos.get(i).imagen1.getWidth(null) + 14)
+            if (listaMarcianos.get(i).posX >= ANCHOPANTALLA - (listaMarcianos.get(i).imagen1.getWidth(null) + 17)
                     || listaMarcianos.get(i).posX <= 0) {//Si un marciano llega al final de la pantalla
                 cambiarDir = true;
+            }
+            
+            //Comprobamos si los marcianos han llegado a la nave
+            if (listaMarcianos.get(i).posY > miNave.posY) {
+                perdido = true;
             }
 
             //Cuantos menos marcianos haya más dispararán, a no ser que solo quede uno
@@ -280,7 +292,7 @@ public class VentanaJuego extends javax.swing.JFrame {
                         listaDisparos.remove(k);
                         puntuacion += 50;//El jugador gana 5 puntos
                     } catch (Exception e) {
-                        System.out.println("fallo");
+
                     }
 
                 }
@@ -312,7 +324,7 @@ public class VentanaJuego extends javax.swing.JFrame {
                         listaDisparos.remove(k);
                         puntuacion += 10; //El jugador recibe un punto
                     } catch (Exception e) {
-                        System.out.println("fallo");
+
                     }
 
                 }
@@ -360,7 +372,7 @@ public class VentanaJuego extends javax.swing.JFrame {
         try {
             naveVida = ImageIO.read(getClass().getResource("/imagenes/nave.png"));
         } catch (IOException ex) {
-            System.out.println("errorrrr");
+
         }
         if (miNave.vidas == 3) {
             g2.drawImage(naveVida, 610, 0, null);
@@ -374,7 +386,6 @@ public class VentanaJuego extends javax.swing.JFrame {
         }
         g2.setColor(Color.GREEN);
         g2.drawString(String.valueOf(puntuacion), 52, 30);
-        //g2.drawString("LIVES", 600, 30);
 
         contador++;
         /////////////////////////////////
@@ -394,7 +405,7 @@ public class VentanaJuego extends javax.swing.JFrame {
             try {
                 go = ImageIO.read(getClass().getResource("/imagenes/go.jpg"));
             } catch (IOException ex) {
-                System.out.println("errorr");
+
             }
 
             g2.setColor(Color.BLACK);
@@ -406,8 +417,8 @@ public class VentanaJuego extends javax.swing.JFrame {
             g2.drawString("SCORE:", 240, 450);
             g2.drawString(String.valueOf(puntuacion), 420, 450);
         }
-        
-        if (listaMarcianos.size() <= 0) {//Si no quedan vidas aparece pantalla game over
+
+        if (listaMarcianos.size() <= 0 || perdido) {//Si no quedan vidas o llegan los marcianos aparece pantalla game over
             temporizador.stop();
 
             g2.setColor(Color.BLACK);
@@ -417,8 +428,8 @@ public class VentanaJuego extends javax.swing.JFrame {
             g2.setFont(myFont);
             g2.drawString("YOU WIN!", 170, 320);
             myFont = new Font("Agency FB", Font.BOLD, 70);
-            g2.drawString("SCORE:", 100, 500);
-            g2.drawString(String.valueOf(puntuacion), 480, 500);
+            g2.drawString("SCORE:", 70, 500);
+            g2.drawString(String.valueOf(puntuacion), 450, 500);
         }
 
         /////////////////////////////////
@@ -438,6 +449,8 @@ public class VentanaJuego extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addKeyListener(new java.awt.event.KeyAdapter() {
@@ -449,15 +462,21 @@ public class VentanaJuego extends javax.swing.JFrame {
             }
         });
 
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/start2..jpg"))); // NOI18N
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 645, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(jLabel2)
+                .addGap(76, 76, 76)
+                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 395, Short.MAX_VALUE)
+            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -486,7 +505,8 @@ public class VentanaJuego extends javax.swing.JFrame {
                 break;
 
             case KeyEvent.VK_SPACE:
-                if (listaDisparos.size() < 2) {//Para que no se pueda disparar a lo loco
+
+                if (listaDisparos.size() < 2 && empezar) {//Para que no se pueda disparar a lo loco
                     Disparo d = new Disparo();
 
                     d.posicionDisparo(miNave);
@@ -495,6 +515,27 @@ public class VentanaJuego extends javax.swing.JFrame {
 
                     //agregamos el disparo a la lista de disparos
                     listaDisparos.add(d);
+                } else {
+                    //Arranco el temporizador para que empiece el juego
+                    temporizador.start();
+                    empezar = true;
+                }
+
+                if (miNave.vidas <= 0 || listaMarcianos.size() <= 0) {
+                    posYMar = 0;
+                    puntuacion = 0;
+                    miNave.vidas = 3;   
+                    cambiarDir=false;
+                    direccionMarciano=false;
+                    perdido = false;
+                    //VAciamos todas las listas
+                    listaMarcianos.clear();
+                    listaDisparos.clear();
+                    listaExplosiones.clear();
+                    listaRayos.clear();
+                    empezarPartida();
+                    temporizador.start();
+                    
                 }
 
                 break;
@@ -550,6 +591,8 @@ public class VentanaJuego extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables
 }
