@@ -737,6 +737,7 @@ public class VentanaJuego extends javax.swing.JFrame {
                     listaDisparos.clear();
                     listaExplosiones.clear();
                     listaRayos.clear();
+                    listaBarreras.clear();
                     empezarPartida();
                     temporizador.start();
 
