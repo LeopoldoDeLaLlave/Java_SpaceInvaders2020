@@ -45,6 +45,7 @@ public class VentanaJuego extends javax.swing.JFrame {
     int num_random = 0;//Para sortear los disparos
 
     Impacto1 imp = new Impacto1();//Para el sonido de la colisiones
+    Crash miCrash = new Crash();
 
     int posYMar = 0;//Guardamos la distancia que hay que sumarle a la posY de los marcianos
     BufferedImage buffer = null;
@@ -156,7 +157,7 @@ public class VentanaJuego extends javax.swing.JFrame {
 
         if (cambiarDir) {
             direccionMarciano = !direccionMarciano;
-            posYMar += 10;//Hago que los marcianos salten
+            posYMar += 50;//Hago que los marcianos salten
         }
 
         cambiarDir = false;
@@ -352,6 +353,92 @@ public class VentanaJuego extends javax.swing.JFrame {
             }
         }
     }
+    
+    //Chequea si una barrera y un rayo colisionan
+    private void chequeaColisionRayoBarrera() {
+        //Creo dos cuadros, uno para el rayo y otro para la barrera
+        Rectangle2D.Double rectanguloRayo = new Rectangle2D.Double();
+        Rectangle2D.Double rectanguloBarrera = new Rectangle2D.Double();
+
+        for (int k = 0; k < listaBarreras.size(); k++) {
+
+            //Calculo el rectangulo del disparo
+            rectanguloBarrera.setFrame(listaBarreras.get(k).posX, listaBarreras.get(k).posY, listaBarreras.get(k).imagen.getWidth(null), listaBarreras.get(k).imagen.getHeight(null));
+            for (int i = 0; i < listaRayos.size(); i++) {
+
+                //Calculo el rectángulo correspondiente al marciano que estoy comprobando
+                rectanguloRayo.setFrame(listaRayos.get(i).posX, listaRayos.get(i).posY, listaRayos.get(i).imagen.getWidth(null), listaRayos.get(i).imagen.getHeight(null));
+
+                if (rectanguloBarrera.intersects(rectanguloRayo)) {//Si entra aquí es porque han chocado
+                    try {
+                        miCrash.ruido();
+                        miCrash.sonidoCrash.start();
+                        listaRayos.remove(i);
+                        listaBarreras.remove(k);
+                    } catch (Exception e) {
+
+                    }
+                }
+            }
+        }
+    }
+    
+    //Chequea si una barrera y un disparo colisionan
+    private void chequeaColisionDisparoBarrera() {
+        //Creo dos cuadros, uno para el disparo y otro para la barrera
+        Rectangle2D.Double rectanguloDisparo = new Rectangle2D.Double();
+        Rectangle2D.Double rectanguloBarrera = new Rectangle2D.Double();
+
+        for (int k = 0; k < listaBarreras.size(); k++) {
+
+            //Calculo el rectangulo del disparo
+            rectanguloBarrera.setFrame(listaBarreras.get(k).posX, listaBarreras.get(k).posY, listaBarreras.get(k).imagen.getWidth(null), listaBarreras.get(k).imagen.getHeight(null));
+            for (int i = 0; i < listaDisparos.size(); i++) {
+
+                //Calculo el rectángulo correspondiente al marciano que estoy comprobando
+                rectanguloDisparo.setFrame(listaDisparos.get(i).posX, listaDisparos.get(i).posY, listaDisparos.get(i).imagen.getWidth(null), listaDisparos.get(i).imagen.getHeight(null));
+
+                if (rectanguloBarrera.intersects(rectanguloDisparo)) {//Si entra aquí es porque han chocado
+                    try {
+                        miCrash.ruido();
+                        miCrash.sonidoCrash.start();
+                        listaDisparos.remove(i);
+                        listaBarreras.remove(k);
+                    } catch (Exception e) {
+
+                    }
+                }
+            }
+        }
+    }
+    
+    //Chequea si una barrera y un marciano colisionan
+    private void chequeaColisionMarcianoBarrera() {
+        //Creo dos cuadros, uno para el marciano y otro para la barrera
+        Rectangle2D.Double rectanguloMarciano = new Rectangle2D.Double();
+        Rectangle2D.Double rectanguloBarrera = new Rectangle2D.Double();
+
+        for (int k = 0; k < listaBarreras.size(); k++) {
+
+            //Calculo el rectangulo del disparo
+            rectanguloBarrera.setFrame(listaBarreras.get(k).posX, listaBarreras.get(k).posY, listaBarreras.get(k).imagen.getWidth(null), listaBarreras.get(k).imagen.getHeight(null));
+            for (int i = 0; i < listaMarcianos.size(); i++) {
+
+                //Calculo el rectángulo correspondiente al marciano que estoy comprobando
+                rectanguloMarciano.setFrame(listaMarcianos.get(i).posX, listaMarcianos.get(i).posY, listaMarcianos.get(i).imagen1.getWidth(null), listaMarcianos.get(i).imagen1.getHeight(null));
+
+                if (rectanguloBarrera.intersects(rectanguloMarciano)) {//Si entra aquí es porque han chocado
+                    try {
+                        miCrash.ruido();
+                        miCrash.sonidoCrash.start();
+                        listaBarreras.remove(k);
+                    } catch (Exception e) {
+
+                    }
+                }
+            }
+        }
+    }
 
     //Chequea si la nave y el rayo colisionan
     private void chequeaColisionNaveRayo() {
@@ -403,6 +490,9 @@ public class VentanaJuego extends javax.swing.JFrame {
         chequeaColisionMarDis();
         chequeaColisionNaveRayo();
         chequeaColisionRayoDis();
+        chequeaColisionRayoBarrera();
+        chequeaColisionDisparoBarrera();
+        chequeaColisionMarcianoBarrera();
 
         pintarBarrera(g2);
         if (miNave.vidas <= 0 || perdido) {//Si no quedan vidas o llegan los marcianos aparece pantalla game over
