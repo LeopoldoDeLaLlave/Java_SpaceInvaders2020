@@ -1,7 +1,5 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ *Ataque del marciano que baja hacia la nave
  */
 package codigo;
 
@@ -18,20 +16,23 @@ import javax.sound.sampled.Clip;
 public class Rayo {
 
     Image imagen = null;
+    
+    //Posición del rayo
     public int posX = 0;
     public int posY = 0;
 
     Clip sonidoRayo = null;
 
+    //Cuando la nave lanza sl rayo hace ruido
     public void ruido() {
         try {
             sonidoRayo = AudioSystem.getClip();
             sonidoRayo.open(AudioSystem.getAudioInputStream(getClass().getResource("/sonido/rayo.wav")));
         } catch (Exception ex) {
-            System.out.println("error");
         }
     }
 
+    //Desplaza el rayo hacia abajo
     public void mueve() {
         posY += 3;
 

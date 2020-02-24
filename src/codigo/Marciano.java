@@ -1,7 +1,5 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Es el enemigo del juego
  */
 package codigo;
 
@@ -15,19 +13,24 @@ import javax.imageio.ImageIO;
  */
 public class Marciano {
     
+    //Dos imagenes para crear el efecto de animación
     public Image imagen1 = null;
     public Image imagen2 = null;
     
+    //Posición en la que se encuentra el marciano
     public int posX=0;
     public int posY=0;
     
+    //Volocidad a la que se desplaza lateralmente el marciano
     public int velocidad = 1;
     
     
     private int anchoPantalla;
     
+    //Lo utilizamos para la animación
     public int vida = 50;
     
+    //Desplaza al marciano lateralmente por la pantalla
     public void mueve(boolean direccion){
         if(direccion){
             posX-=velocidad;

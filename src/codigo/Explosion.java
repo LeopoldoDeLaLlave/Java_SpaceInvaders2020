@@ -1,7 +1,5 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Animación y sonido cuando muere un marciano
  */
 package codigo;
 
@@ -18,16 +16,17 @@ import javax.sound.sampled.LineUnavailableException;
  */
 public class Explosion {
     Image imagen1 = null;
-    Image imagen2 = null;
-    Image imagen3 = null;
-    
+
+    //Posición de la explosión
     public int posX = 0;
     public int posY = 0;
     
+    //Tiempo que está en pantalla la explosión
     public int tiempoDeVida = 15;
     
     Clip sonidoExplosion = null;
     
+    //Al producirse la explosión hay un ruído
     public  Explosion(){
         try {
             sonidoExplosion = AudioSystem.getClip();

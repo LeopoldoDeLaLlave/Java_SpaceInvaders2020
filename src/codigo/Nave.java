@@ -1,5 +1,5 @@
 /*
- * Autor: Javier de la Llave
+ * Esta nave la controla el usuario
  */
 package codigo;
 
@@ -14,17 +14,22 @@ import javax.imageio.ImageIO;
 public class Nave {
     
     Image imagen = null;
+    //Posición de la nave
     public int posX = 0;
     public int posY = 0;
+    
+    //Si recibe tres dispaos se acaba el juego
     int vidas = 3;
     
+    //Nos indica la dirección en la que se desplaza la nave
     private boolean pulsadoIzquierda = false;
     private boolean pulsadoDerecha = false;
     
-    public Nave(){
+    /*public Nave(){
 
-    }
+    }*/
     
+    //Desplaza la nave lateralmente
     public void mueve(){
         if(pulsadoIzquierda && posX>0){
             posX-=3;
