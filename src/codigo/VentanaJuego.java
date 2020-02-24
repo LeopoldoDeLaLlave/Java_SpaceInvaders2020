@@ -130,7 +130,7 @@ public class VentanaJuego extends javax.swing.JFrame {
                 Marciano m = new Marciano(ANCHOPANTALLA);
                 m.imagen1 = imagenes[2 * i];
                 m.imagen2 = imagenes[2 * i + 1];
-                m.posX = j * (10 + m.imagen1.getWidth(null))+5;
+                m.posX = j * (10 + m.imagen1.getWidth(null)) + 5;
                 m.posY = i * (10 + m.imagen1.getHeight(null)) + 120;
                 listaMarcianos.add(m);
             }
@@ -153,16 +153,15 @@ public class VentanaJuego extends javax.swing.JFrame {
         //Establecemos las posiciones de los marcianos
         for (int i = 0; i < listaMarcianos.size(); i++) {
 
-
             listaMarcianos.get(i).velocidad = velocidadMarcianos;
             listaMarcianos.get(i).mueve(direccionMarciano);
             if (listaMarcianos.get(i).posX >= ANCHOPANTALLA - (listaMarcianos.get(i).imagen1.getWidth(null) + 17)
                     || listaMarcianos.get(i).posX <= 0) {//Si un marciano llega al final de la pantalla
                 cambiarDir = true;
             }
-            
+
             //Comprobamos si los marcianos han llegado a la nave
-            if (listaMarcianos.get(i).posY > miNave.posY) {
+            if ((listaMarcianos.get(i).posY + posYMar + listaMarcianos.get(i).imagen1.getHeight(null)) > miNave.posY) {
                 perdido = true;
             }
 
@@ -400,8 +399,11 @@ public class VentanaJuego extends javax.swing.JFrame {
         chequeaColisionNaveRayo();
         chequeaColisionRayoDis();
 
-        if (miNave.vidas <= 0) {//Si no quedan vidas aparece pantalla game over
+        if (miNave.vidas <= 0 || perdido) {//Si no quedan vidas o llegan los marcianos aparece pantalla game over
             temporizador.stop();
+            GameOver miGO = new GameOver();
+            miGO.ruido();
+            miGO.sonidoGO.start();
             try {
                 go = ImageIO.read(getClass().getResource("/imagenes/go.jpg"));
             } catch (IOException ex) {
@@ -416,11 +418,20 @@ public class VentanaJuego extends javax.swing.JFrame {
             g2.setFont(myFont);
             g2.drawString("SCORE:", 240, 450);
             g2.drawString(String.valueOf(puntuacion), 420, 450);
+            g2 = (Graphics2D) jPanel1.getGraphics();
+            g2.drawImage(buffer, 0, 0, this);
+            try {//Paro el juego por 5 segungos
+                Thread.sleep(4000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
-        if (listaMarcianos.size() <= 0 || perdido) {//Si no quedan vidas o llegan los marcianos aparece pantalla game over
+        if (listaMarcianos.size() <= 0) {//Si no quedan marcianos se gana la partida
             temporizador.stop();
-
+            YouWin miWin=new YouWin();
+            miWin.ruido();
+            miWin.sonidoWin.start();
             g2.setColor(Color.BLACK);
             g2.fillRect(0, 0, ANCHOPANTALLA, ALTOPANTALLA);
             g2.setColor(Color.GREEN);
@@ -430,6 +441,13 @@ public class VentanaJuego extends javax.swing.JFrame {
             myFont = new Font("Agency FB", Font.BOLD, 70);
             g2.drawString("SCORE:", 70, 500);
             g2.drawString(String.valueOf(puntuacion), 450, 500);
+            g2 = (Graphics2D) jPanel1.getGraphics();
+            g2.drawImage(buffer, 0, 0, this);
+            try {//Paro el juego por 5 segungos
+                Thread.sleep(4000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         /////////////////////////////////
@@ -506,7 +524,7 @@ public class VentanaJuego extends javax.swing.JFrame {
 
             case KeyEvent.VK_SPACE:
 
-                if (listaDisparos.size() < 2 && empezar) {//Para que no se pueda disparar a lo loco
+                if (listaDisparos.size() < 2 && empezar && !perdido) {//Para que no se pueda disparar a lo loco
                     Disparo d = new Disparo();
 
                     d.posicionDisparo(miNave);
@@ -521,12 +539,12 @@ public class VentanaJuego extends javax.swing.JFrame {
                     empezar = true;
                 }
 
-                if (miNave.vidas <= 0 || listaMarcianos.size() <= 0) {
+                if (miNave.vidas <= 0 || listaMarcianos.size() <= 0 || perdido) {
                     posYMar = 0;
                     puntuacion = 0;
-                    miNave.vidas = 3;   
-                    cambiarDir=false;
-                    direccionMarciano=false;
+                    miNave.vidas = 3;
+                    cambiarDir = false;
+                    direccionMarciano = false;
                     perdido = false;
                     //VAciamos todas las listas
                     listaMarcianos.clear();
@@ -535,7 +553,7 @@ public class VentanaJuego extends javax.swing.JFrame {
                     listaRayos.clear();
                     empezarPartida();
                     temporizador.start();
-                    
+
                 }
 
                 break;
