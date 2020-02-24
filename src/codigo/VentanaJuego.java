@@ -157,7 +157,7 @@ public class VentanaJuego extends javax.swing.JFrame {
 
         if (cambiarDir) {
             direccionMarciano = !direccionMarciano;
-            posYMar += 50;//Hago que los marcianos salten
+            posYMar += 10;//Hago que los marcianos salten
         }
 
         cambiarDir = false;
@@ -425,15 +425,16 @@ public class VentanaJuego extends javax.swing.JFrame {
             for (int i = 0; i < listaMarcianos.size(); i++) {
 
                 //Calculo el rectángulo correspondiente al marciano que estoy comprobando
-                rectanguloMarciano.setFrame(listaMarcianos.get(i).posX, listaMarcianos.get(i).posY, listaMarcianos.get(i).imagen1.getWidth(null), listaMarcianos.get(i).imagen1.getHeight(null));
+                rectanguloMarciano.setFrame(listaMarcianos.get(i).posX, listaMarcianos.get(i).posY+posYMar, listaMarcianos.get(i).imagen1.getWidth(null), listaMarcianos.get(i).imagen1.getHeight(null));
 
                 if (rectanguloBarrera.intersects(rectanguloMarciano)) {//Si entra aquí es porque han chocado
+
                     try {
                         miCrash.ruido();
                         miCrash.sonidoCrash.start();
                         listaBarreras.remove(k);
                     } catch (Exception e) {
-
+                        
                     }
                 }
             }
